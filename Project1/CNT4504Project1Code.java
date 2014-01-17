@@ -2,6 +2,7 @@ import api.util.Networking;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
 
 /*
 	This class builds upon my existing classes to fulfill the requirement for Project 1.
@@ -25,24 +26,24 @@ public class CNT4504Project1Code
 
 		public void run()
 		{
-			/*try
-				{
-					// TODO
-				}
-				catch (final SocketException e)
-				{
-					System.err.println("Socket exception encountered while connected to server: " + e.toString());
-					e.printStackTrace();
-				}
-				catch (final IOException e)
-				{
-					System.err.println("I/O exception encountered while connected to server: " + e.toString());
-					e.printStackTrace();
-				}
-				finally
-				{
-					this.close();
-				}*/
+			try
+			{
+				// TODO
+			}
+			catch (final SocketException e)
+			{
+				System.err.println("Socket exception encountered while connected to server: " + e.toString());
+				e.printStackTrace();
+			}
+			catch (final IOException e)
+			{
+				System.err.println("I/O exception encountered while connected to server: " + e.toString());
+				e.printStackTrace();
+			}
+			finally
+			{
+				this.close();
+			}
 		}
 	}
 
@@ -83,24 +84,24 @@ public class CNT4504Project1Code
 
 		public void run()
 		{
-			/*try
-				{
-					// TODO
-				}
-				catch (final SocketException e)
-				{
-					System.err.println("Socket exception encountered while connected to client: " + e.toString());
-					e.printStackTrace();
-				}
-				catch (final IOException e)
-				{
-					System.err.println("I/O exception encountered while connected to client: " + e.toString());
-					e.printStackTrace();
-				}
-				finally
-				{
-					this.close();
-				}*/
+			try
+			{
+				// TODO
+			}
+			catch (final SocketException e)
+			{
+				System.err.println("Socket exception encountered while connected to client: " + e.toString());
+				e.printStackTrace();
+			}
+			catch (final IOException e)
+			{
+				System.err.println("I/O exception encountered while connected to client: " + e.toString());
+				e.printStackTrace();
+			}
+			finally
+			{
+				this.close();
+			}
 		}
 	}
 
