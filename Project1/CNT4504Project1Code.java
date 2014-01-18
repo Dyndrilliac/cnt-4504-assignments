@@ -1,27 +1,20 @@
+import api.gui.ApplicationWindow;
+import api.gui.RichTextPane;
 import api.util.Networking;
+import api.util.Support;
 
-import java.io.IOException;
 import java.net.Socket;
-import java.net.SocketException;
 
 /*
 	This class builds upon my existing classes to fulfill the requirement for Project 1.
 */
 public class CNT4504Project1Code
-{
-	public static class CNT4504Project1Application implements Runnable
-	{
-		public void run()
-		{
-			// TODO
-		}
-	}
-
+{	
 	public static class CNT4504Project1ClientThread extends Networking.SimpleClientThread
 	{
-		public CNT4504Project1ClientThread(final String remoteHost, final int remotePort)
+		public CNT4504Project1ClientThread(final ApplicationWindow window, final String remoteHost, final int remotePort)
 		{
-			super(remoteHost, remotePort);
+			super(window, remoteHost, remotePort);
 		}
 
 		public void run()
@@ -30,15 +23,9 @@ public class CNT4504Project1Code
 			{
 				// TODO
 			}
-			catch (final SocketException e)
+			catch (final Exception e)
 			{
-				System.err.println("Socket exception encountered while connected to server: " + e.toString());
-				e.printStackTrace();
-			}
-			catch (final IOException e)
-			{
-				System.err.println("I/O exception encountered while connected to server: " + e.toString());
-				e.printStackTrace();
+				Support.displayException(this.window, e, false);
 			}
 			finally
 			{
@@ -49,9 +36,9 @@ public class CNT4504Project1Code
 
 	public static class CNT4504Project1ServerThread extends Networking.SimpleServerThread
 	{
-		public CNT4504Project1ServerThread(final int listeningPort)
+		public CNT4504Project1ServerThread(final ApplicationWindow window, final int listeningPort)
 		{
-			super(listeningPort);
+			super(window, listeningPort);
 		}
 
 		public void run()
@@ -60,14 +47,13 @@ public class CNT4504Project1Code
 			{
 				try
 				{
-					Networking.SimpleChildServerThread newThread = new CNT4504Project1ChildServerThread(this, this.listeningSocket.accept());
+					Networking.SimpleChildServerThread newThread = new CNT4504Project1ChildServerThread(this.window, this, this.listeningSocket.accept());
 					newThread.start();
 					this.getClientList().add(newThread);
 				}
-				catch (final IOException e)
+				catch (final Exception e)
 				{
-					System.err.println("I/O exception encountered while listening for clients: " + e.toString());
-					e.printStackTrace();
+					Support.displayException(this.window, e, false);
 				}
 			}
 
@@ -77,9 +63,9 @@ public class CNT4504Project1Code
 
 	public static class CNT4504Project1ChildServerThread extends Networking.SimpleChildServerThread
 	{
-		public CNT4504Project1ChildServerThread(final Networking.SimpleServerThread parent, final Socket socket)
+		public CNT4504Project1ChildServerThread(final ApplicationWindow window, final Networking.SimpleServerThread parent, final Socket socket)
 		{
-			super(parent, socket);
+			super(window, parent, socket);
 		}
 
 		public void run()
@@ -88,15 +74,9 @@ public class CNT4504Project1Code
 			{
 				// TODO
 			}
-			catch (final SocketException e)
+			catch (final Exception e)
 			{
-				System.err.println("Socket exception encountered while connected to client: " + e.toString());
-				e.printStackTrace();
-			}
-			catch (final IOException e)
-			{
-				System.err.println("I/O exception encountered while connected to client: " + e.toString());
-				e.printStackTrace();
+				Support.displayException(this.window, e, false);
 			}
 			finally
 			{
