@@ -3,13 +3,14 @@
 	Author: Matthew Boyette
 	Date: 1/12/2014
 	
-	
+	This code implements the client application.
 */
 
 import api.gui.*;
 import api.util.*;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -49,16 +50,14 @@ public class ClientDemo
 				{
 					throw new IllegalArgumentException("myActionPerformed Error : incorrect number of arguments.");
 				}
-				else
-					if (!(arguments[0] instanceof ActionEvent))
-					{
-						throw new IllegalArgumentException("myActionPerformed Error : argument[0] is of incorrect type.");
-					}
-					else
-						if (!(arguments[1] instanceof ApplicationWindow))
-						{
-							throw new IllegalArgumentException("myActionPerformed Error : argument[1] is of incorrect type.");
-						}
+				else if (!(arguments[0] instanceof ActionEvent))
+				{
+					throw new IllegalArgumentException("myActionPerformed Error : argument[0] is of incorrect type.");
+				}
+				else if (!(arguments[1] instanceof ApplicationWindow))
+				{
+					throw new IllegalArgumentException("myActionPerformed Error : argument[1] is of incorrect type.");
+				}
 				
 				ActionEvent event = (ActionEvent)arguments[0];
 				ApplicationWindow window = (ApplicationWindow)arguments[1];
@@ -75,10 +74,10 @@ public class ClientDemo
 				if (output != null)
 				{
 					/*
-					 * JDK 7 allows string objects as the expression in a switch statement.
-					 * This generally produces more efficient byte code compared to a chain of if statements.
-					 * http://docs.oracle.com/javase/7/docs/technotes/guides/language/strings-switch.html
-					 */
+						JDK 7 allows string objects as the expression in a switch statement.
+						This generally produces more efficient byte code compared to a chain of if statements.
+						http://docs.oracle.com/javase/7/docs/technotes/guides/language/strings-switch.html
+					*/
 					switch (event.getActionCommand())
 					{
 						case "Clear":
@@ -114,11 +113,10 @@ public class ClientDemo
 				{
 					throw new IllegalArgumentException("myDrawGUI Error : incorrect number of arguments.");
 				}
-				else
-					if (!(arguments[0] instanceof ApplicationWindow))
-					{
-						throw new IllegalArgumentException("myDrawGUI Error : argument[0] is of incorrect type.");
-					}
+				else if (!(arguments[0] instanceof ApplicationWindow))
+				{
+					throw new IllegalArgumentException("myDrawGUI Error : argument[0] is of incorrect type.");
+				}
 				
 				ApplicationWindow window = (ApplicationWindow)arguments[0];
 				Container contentPane = window.getContentPane();

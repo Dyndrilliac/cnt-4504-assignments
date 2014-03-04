@@ -3,7 +3,7 @@
 	Author: Matthew Boyette
 	Date: 1/12/2014
 	
-	
+	This code implements the core networking functions needed by the client and server applications.
 */
 
 import api.gui.*;
