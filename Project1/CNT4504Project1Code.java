@@ -1,3 +1,11 @@
+/*
+	Title: CNT 4504 Project 1 - Core
+	Author: Matthew Boyette
+	Date: 1/12/2014
+	
+	
+*/
+
 import api.gui.*;
 import api.util.*;
 
@@ -7,14 +15,15 @@ import java.net.Socket;
 	This class builds upon my existing classes to fulfill the requirement for Project 1.
 */
 public class CNT4504Project1Code
-{	
-	public static class CNT4504Project1ClientThread extends Networking.SimpleClientThread
+{
+	public static class CNT4504Project1ChildServerThread extends Networking.SimpleChildServerThread
 	{
-		public CNT4504Project1ClientThread(final ApplicationWindow window, final String remoteHost, final int remotePort)
+		public CNT4504Project1ChildServerThread(final Networking.SimpleServerThread parent, final Socket socket, final ApplicationWindow window)
 		{
-			super(window, remoteHost, remotePort);
+			super(parent, socket, window);
 		}
-
+		
+		@Override
 		public void run()
 		{
 			try
@@ -23,7 +32,7 @@ public class CNT4504Project1Code
 			}
 			catch (final Exception e)
 			{
-				Support.displayException(this.window, e, false);
+				Support.displayException(this.getWindow(), e, false);
 			}
 			finally
 			{
@@ -31,67 +40,70 @@ public class CNT4504Project1Code
 			}
 		}
 	}
-
-	public static class CNT4504Project1ServerThread extends Networking.SimpleServerThread
+	
+	public static class CNT4504Project1ClientThread extends Networking.SimpleClientThread
 	{
-		public CNT4504Project1ServerThread(final ApplicationWindow window, final int listeningPort)
+		public CNT4504Project1ClientThread(final String remoteHost, final int remotePort, final ApplicationWindow window)
 		{
-			super(window, listeningPort);
+			super(remoteHost, remotePort, window);
 		}
-
+		
+		@Override
 		public void run()
 		{
-			while ((this.isListening()) && (this.listeningSocket != null))
+			try
+			{
+				// TODO
+			}
+			catch (final Exception e)
+			{
+				Support.displayException(this.getWindow(), e, false);
+			}
+			finally
+			{
+				this.close();
+			}
+		}
+	}
+	
+	public static class CNT4504Project1Protocol implements Networking.SimpleProtocol
+	{
+		@Override
+		public String processInput(final String input)
+		{
+			String output = null;
+			
+			// TODO
+			
+			return output;
+		}
+	}
+	
+	public static class CNT4504Project1ServerThread extends Networking.SimpleServerThread
+	{
+		public CNT4504Project1ServerThread(final int listeningPort, final ApplicationWindow window)
+		{
+			super(listeningPort, window);
+		}
+		
+		@Override
+		public void run()
+		{
+			while ((this.isListening()) && (this.getListeningSocket() != null))
 			{
 				try
 				{
-					Networking.SimpleChildServerThread newThread = new CNT4504Project1ChildServerThread(this.window, this, this.listeningSocket.accept());
+					Networking.SimpleChildServerThread newThread = new CNT4504Project1ChildServerThread(this, this.getListeningSocket().accept(), this.getWindow());
 					newThread.start();
 					this.getClientList().add(newThread);
 				}
 				catch (final Exception e)
 				{
-					Support.displayException(this.window, e, false);
+					Support.displayException(this.getWindow(), e, false);
 				}
 			}
-
+			
 			this.close();
-		}
-	}
-
-	public static class CNT4504Project1ChildServerThread extends Networking.SimpleChildServerThread
-	{
-		public CNT4504Project1ChildServerThread(final ApplicationWindow window, final Networking.SimpleServerThread parent, final Socket socket)
-		{
-			super(window, parent, socket);
-		}
-
-		public void run()
-		{
-			try
-			{
-				// TODO
-			}
-			catch (final Exception e)
-			{
-				Support.displayException(this.window, e, false);
-			}
-			finally
-			{
-				this.close();
-			}
-		}
-	}
-
-	public static class CNT4504Project1Protocol implements Networking.SimpleProtocol
-	{
-		public String processInput(final String input)
-		{
-			String output = null;
-
-			// TODO
-
-			return output; 
 		}
 	}
 }
