@@ -1,7 +1,5 @@
-import api.gui.ApplicationWindow;
-import api.gui.RichTextPane;
-import api.util.Networking;
-import api.util.Support;
+import api.gui.*;
+import api.util.*;
 
 import java.net.Socket;
 

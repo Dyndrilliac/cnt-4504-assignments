@@ -10,20 +10,24 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 
+import javax.swing.JComboBox;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 
 public class ServerDemo
 {
-	private static boolean                       debugMode = false;
-	private static Networking.SimpleServerThread myThread  = null;
-	private static ApplicationWindow             myWindow  = null;
+	private final static Font	textFont	= new Font("Lucida Console", Font.PLAIN, 14);
 	
-	// Server application entry-point.
+	private static boolean							debugMode	= false;
+	private static Networking.SimpleServerThread	myThread	= null;
+	private static ApplicationWindow				myWindow	= null;
+	
+	// Client application entry-point.
 	public static void main(String[] args)
 	{
 		int choice = Support.promptDebugMode(myWindow);
@@ -105,15 +109,29 @@ public class ServerDemo
 					throw new IllegalArgumentException("myDrawGUI Error : argument[0] is of incorrect type.");
 				}
 				
-				ApplicationWindow window      = (ApplicationWindow)arguments[0];
-				Container         contentPane = window.getContentPane();
-				JMenuBar          menuBar     = new JMenuBar();
-				JMenu             fileMenu    = new JMenu("File");
-				JMenuItem         clearOption = new JMenuItem("Clear");
-				JMenuItem         openOption  = new JMenuItem("Open");
-				JMenuItem         saveOption  = new JMenuItem("Save");
-				Font              outputFont  = new Font("Lucida Console", Font.PLAIN, 14);
-				RichTextPane      outputBox   = new RichTextPane((Component)window, true, window.isDebugging(), outputFont);
+				ApplicationWindow	window		= (ApplicationWindow)arguments[0];
+				Container			contentPane	= window.getContentPane();
+				JMenuBar			menuBar		= new JMenuBar();
+				JMenu				fileMenu	= new JMenu("File");
+				JMenuItem			clearOption	= new JMenuItem("Clear");
+				JMenuItem			openOption	= new JMenuItem("Open");
+				JMenuItem			saveOption	= new JMenuItem("Save");
+				RichTextPane		outputBox	= new RichTextPane((Component)window, true, window.isDebugging(), ServerDemo.textFont);
+				JComboBox<String>	inputBox	= new JComboBox<String>();
+				
+				fileMenu.setFont(ServerDemo.textFont);
+				clearOption.setFont(ServerDemo.textFont);
+				openOption.setFont(ServerDemo.textFont);
+				saveOption.setFont(ServerDemo.textFont);
+				inputBox.setFont(ServerDemo.textFont);
+				
+				fileMenu.setMnemonic('F');
+				openOption.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.Event.CTRL_MASK));
+				openOption.setMnemonic('O');
+				saveOption.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.Event.CTRL_MASK));
+				saveOption.setMnemonic('S');
+				clearOption.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.Event.CTRL_MASK));
+				clearOption.setMnemonic('C');
 				
 				contentPane.setLayout(new BorderLayout());
 				clearOption.addActionListener(window);
@@ -129,9 +147,11 @@ public class ServerDemo
 				JPanel      inputPanel  = new JPanel();
 				
 				inputPanel.setLayout(new FlowLayout());
+				inputPanel.add(inputBox);
 				contentPane.add(outputPanel, BorderLayout.CENTER);
 				contentPane.add(inputPanel, BorderLayout.SOUTH);
 				window.getElements().add(outputBox);
+				window.getElements().add(inputBox);
 			}
 		};
 		
