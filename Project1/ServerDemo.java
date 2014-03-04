@@ -11,7 +11,6 @@ import api.util.*;
 import CNT4504.Project1Code.CNT4504Project1Code.*;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -26,14 +25,32 @@ import javax.swing.KeyStroke;
 
 public class ServerDemo
 {
-	private final static Font					textFont	= new Font("Lucida Console", Font.PLAIN, 14);
+	private final static Font	textFont	= new Font("Lucida Console", Font.PLAIN, 14);
 	
-	private static boolean						debugMode			= false;
-	private static EventHandler					myActionPerformed	= null;
-	private static EventHandler					myDrawGUI			= null;
-	private static CNT4504Project1ServerThread	myThread			= null;
-	private static ApplicationWindow			myWindow			= null;
-	private static int							portNumber			= 0;
+	private static boolean							debugMode			= false;
+	private static EventHandler						myActionPerformed	= null;
+	private static EventHandler						myDrawGUI			= null;
+	private static Networking.SimpleServerThread	myThread			= null;
+	private static ApplicationWindow				myWindow			= null;
+	private static int								portNumber			= 0;
+	
+	public static synchronized RichTextPane getOutput()
+	{
+		RichTextPane output = null;
+		
+		if (ServerDemo.myWindow != null)
+		{
+			for (int i = 0; i < ServerDemo.myWindow.getElements().size(); i++)
+			{
+				if (ServerDemo.myWindow.getElements().get(i) instanceof RichTextPane)
+				{
+					output = (RichTextPane)ServerDemo.myWindow.getElements().get(i);
+				}
+			}
+		}
+		
+		return output;
+	}
 	
 	// Server application entry-point.
 	public static void main(final String[] args)
@@ -61,16 +78,7 @@ public class ServerDemo
 				}
 				
 				ActionEvent event = (ActionEvent)arguments[0];
-				ApplicationWindow window = (ApplicationWindow)arguments[1];
-				RichTextPane output = null;
-				
-				for (int i = 0; i < window.getElements().size(); i++)
-				{
-					if (window.getElements().get(i) instanceof RichTextPane)
-					{
-						output = (RichTextPane)window.getElements().get(i);
-					}
-				}
+				RichTextPane output = ServerDemo.getOutput();
 				
 				if (output != null)
 				{
@@ -159,27 +167,6 @@ public class ServerDemo
 		
 		ServerDemo.setListeningPort();
 		ServerDemo.reset();
-	}
-	
-	public static void printString(final String s)
-	{
-		RichTextPane output = null;
-		
-		if (ServerDemo.myWindow != null)
-		{
-			for (int i = 0; i < ServerDemo.myWindow.getElements().size(); i++)
-			{
-				if (ServerDemo.myWindow.getElements().get(i) instanceof RichTextPane)
-				{
-					output = (RichTextPane)ServerDemo.myWindow.getElements().get(i);
-				}
-			}
-		}
-		
-		if (output != null)
-		{
-			output.append(Color.BLACK, Color.WHITE, "[" + Support.getDateTimeStamp() + "]: " + s);
-		}
 	}
 	
 	public static synchronized void reset()
