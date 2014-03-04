@@ -8,23 +8,19 @@
 
 import api.gui.*;
 import api.util.*;
-
 import CNT4504.Project1Code.CNT4504Project1Code.*;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 
-import javax.swing.JComboBox;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 
@@ -32,9 +28,12 @@ public class ServerDemo
 {
 	private final static Font					textFont	= new Font("Lucida Console", Font.PLAIN, 14);
 	
-	private static boolean						debugMode	= false;
-	private static CNT4504Project1ServerThread	myThread	= null;
-	private static ApplicationWindow			myWindow	= null;
+	private static boolean						debugMode			= false;
+	private static EventHandler					myActionPerformed	= null;
+	private static EventHandler					myDrawGUI			= null;
+	private static CNT4504Project1ServerThread	myThread			= null;
+	private static ApplicationWindow			myWindow			= null;
+	private static int							portNumber			= 0;
 	
 	// Server application entry-point.
 	public static void main(final String[] args)
@@ -43,7 +42,7 @@ public class ServerDemo
 		ServerDemo.debugMode = (choice == JOptionPane.YES_OPTION);
 		
 		// Define a self-contained ActionListener event handler.
-		EventHandler myActionPerformed = new EventHandler()
+		ServerDemo.myActionPerformed = new EventHandler()
 		{
 			@Override
 			public final void run(final Object... arguments) throws IllegalArgumentException
@@ -106,7 +105,7 @@ public class ServerDemo
 		};
 		
 		// Define a self-contained interface construction event handler.
-		EventHandler myDrawGUI = new EventHandler()
+		ServerDemo.myDrawGUI = new EventHandler()
 		{
 			@Override
 			public final void run(final Object... arguments) throws IllegalArgumentException
@@ -128,13 +127,12 @@ public class ServerDemo
 				JMenuItem openOption = new JMenuItem("Open");
 				JMenuItem saveOption = new JMenuItem("Save");
 				RichTextPane outputBox = new RichTextPane(window, true, window.isDebugging(), ServerDemo.textFont);
-				JComboBox<String> inputBox = new JComboBox<String>();
+				JScrollPane outputPanel = new JScrollPane(outputBox);
 				
 				fileMenu.setFont(ServerDemo.textFont);
 				clearOption.setFont(ServerDemo.textFont);
 				openOption.setFont(ServerDemo.textFont);
 				saveOption.setFont(ServerDemo.textFont);
-				inputBox.setFont(ServerDemo.textFont);
 				
 				fileMenu.setMnemonic('F');
 				openOption.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.Event.CTRL_MASK));
@@ -144,7 +142,6 @@ public class ServerDemo
 				clearOption.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.Event.CTRL_MASK));
 				clearOption.setMnemonic('C');
 				
-				contentPane.setLayout(new BorderLayout());
 				clearOption.addActionListener(window);
 				fileMenu.add(clearOption);
 				openOption.addActionListener(window);
@@ -152,23 +149,58 @@ public class ServerDemo
 				saveOption.addActionListener(window);
 				fileMenu.add(saveOption);
 				menuBar.add(fileMenu);
-				window.setJMenuBar(menuBar);
 				
-				JScrollPane outputPanel = new JScrollPane(outputBox);
-				JPanel inputPanel = new JPanel();
-				
-				inputPanel.setLayout(new FlowLayout());
-				inputPanel.add(inputBox);
+				contentPane.setLayout(new BorderLayout());
 				contentPane.add(outputPanel, BorderLayout.CENTER);
-				contentPane.add(inputPanel, BorderLayout.SOUTH);
+				window.setJMenuBar(menuBar);
 				window.getElements().add(outputBox);
-				window.getElements().add(inputBox);
 			}
 		};
 		
-		ServerDemo.myWindow = new ApplicationWindow(null, "Server Demo", new Dimension(600, 400), ServerDemo.debugMode, false,
-			myActionPerformed, myDrawGUI);
-		ServerDemo.myThread = new CNT4504Project1ServerThread(15000, ServerDemo.myWindow);
+		ServerDemo.setListeningPort();
+		ServerDemo.reset();
+	}
+	
+	public static void printString(final String s)
+	{
+		RichTextPane output = null;
+		
+		if (ServerDemo.myWindow != null)
+		{
+			for (int i = 0; i < ServerDemo.myWindow.getElements().size(); i++)
+			{
+				if (ServerDemo.myWindow.getElements().get(i) instanceof RichTextPane)
+				{
+					output = (RichTextPane)ServerDemo.myWindow.getElements().get(i);
+				}
+			}
+		}
+		
+		if (output != null)
+		{
+			output.append(Color.BLACK, Color.WHITE, "[" + Support.getDateTimeStamp() + "]: " + s);
+		}
+	}
+	
+	public static synchronized void reset()
+	{
+		if (ServerDemo.myWindow != null)
+		{
+			ServerDemo.myWindow.dispose();
+			ServerDemo.myWindow = null;
+		}
+		
+		if (ServerDemo.myThread != null)
+		{
+			ServerDemo.myThread.close();
+			ServerDemo.myThread = null;
+		}
+		
+		String serverTitle = "Server Demo - Listening Port: " + ServerDemo.portNumber;
+		
+		ServerDemo.myWindow = new ApplicationWindow(null, serverTitle, new Dimension(600, 400), ServerDemo.debugMode, false,
+			ServerDemo.myActionPerformed, ServerDemo.myDrawGUI);
+		ServerDemo.myThread = new CNT4504Project1ServerThread(ServerDemo.portNumber, ServerDemo.myWindow);
 		ServerDemo.myThread.start();
 		
 		while (ServerDemo.myThread.isListening())
@@ -178,5 +210,18 @@ public class ServerDemo
 		
 		ServerDemo.myThread = null;
 		ServerDemo.myWindow = null;
+	}
+	
+	public static synchronized void setListeningPort()
+	{
+		String s = null;
+		
+		do
+		{
+			s = Support.getInputString(ServerDemo.myWindow, "Listening port?", "Set Listening Port");
+		}
+		while (Support.isStringParsedAsInteger(s) != true);
+		
+		ServerDemo.portNumber = Integer.parseInt(s);
 	}
 }

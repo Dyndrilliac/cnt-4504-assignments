@@ -8,7 +8,6 @@
 
 import api.gui.*;
 import api.util.*;
-
 import CNT4504.Project1Code.CNT4504Project1Code.*;
 
 import java.awt.BorderLayout;
@@ -19,6 +18,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -32,9 +32,13 @@ public class ClientDemo
 {
 	private final static Font					textFont	= new Font("Lucida Console", Font.PLAIN, 14);
 	
-	private static boolean						debugMode	= false;
-	private static CNT4504Project1ClientThread	myThread	= null;
-	private static ApplicationWindow			myWindow	= null;
+	private static boolean						debugMode			= false;
+	private static String						hostName			= null;
+	private static EventHandler					myActionPerformed	= null;
+	private static EventHandler					myDrawGUI			= null;
+	private static CNT4504Project1ClientThread	myThread			= null;
+	private static ApplicationWindow			myWindow			= null;
+	private static int							portNumber			= 0;
 	
 	// Client application entry-point.
 	public static void main(final String[] args)
@@ -43,7 +47,7 @@ public class ClientDemo
 		ClientDemo.debugMode = (choice == JOptionPane.YES_OPTION);
 		
 		// Define a self-contained ActionListener event handler.
-		EventHandler myActionPerformed = new EventHandler()
+		ClientDemo.myActionPerformed = new EventHandler()
 		{
 			@Override
 			public final void run(final Object... arguments) throws IllegalArgumentException
@@ -96,7 +100,12 @@ public class ClientDemo
 							
 							output.saveFile();
 							break;
-						
+							
+						case "Send":
+							
+							// TODO
+							break;
+							
 						default:
 							
 							break;
@@ -106,7 +115,7 @@ public class ClientDemo
 		};
 		
 		// Define a self-contained interface construction event handler.
-		EventHandler myDrawGUI = new EventHandler()
+		ClientDemo.myDrawGUI = new EventHandler()
 		{
 			@Override
 			public final void run(final Object... arguments) throws IllegalArgumentException
@@ -129,11 +138,13 @@ public class ClientDemo
 				JMenuItem saveOption = new JMenuItem("Save");
 				RichTextPane outputBox = new RichTextPane(window, true, window.isDebugging(), ClientDemo.textFont);
 				JComboBox<String> inputBox = new JComboBox<String>();
+				JButton btnSend = new JButton("Send");
 				
 				fileMenu.setFont(ClientDemo.textFont);
 				clearOption.setFont(ClientDemo.textFont);
 				openOption.setFont(ClientDemo.textFont);
 				saveOption.setFont(ClientDemo.textFont);
+				inputBox.setEditable(false);
 				inputBox.setFont(ClientDemo.textFont);
 				
 				fileMenu.setMnemonic('F');
@@ -153,22 +164,83 @@ public class ClientDemo
 				fileMenu.add(saveOption);
 				menuBar.add(fileMenu);
 				window.setJMenuBar(menuBar);
+				btnSend.addActionListener(window);
 				
 				JScrollPane outputPanel = new JScrollPane(outputBox);
 				JPanel inputPanel = new JPanel();
 				
 				inputPanel.setLayout(new FlowLayout());
 				inputPanel.add(inputBox);
+				inputPanel.add(btnSend);
 				contentPane.add(outputPanel, BorderLayout.CENTER);
 				contentPane.add(inputPanel, BorderLayout.SOUTH);
 				window.getElements().add(outputBox);
 				window.getElements().add(inputBox);
+				
+				window.getRootPane().setDefaultButton(btnSend);
 			}
 		};
 		
-		ClientDemo.myWindow = new ApplicationWindow(null, "Client Demo", new Dimension(600, 400), ClientDemo.debugMode, false,
-			myActionPerformed, myDrawGUI);
-		ClientDemo.myThread = new CNT4504Project1ClientThread("localhost", 15000, ClientDemo.myWindow);
+		try
+		{
+			if (args.length > 0)
+			{
+				ClientDemo.hostName = args[0];
+				ClientDemo.setRemotePort();
+				ClientDemo.reset();
+			}
+			else
+			{
+				throw new Exception("User did not supply a remote hostname via the command-line!");
+			}
+		}
+		catch (Exception e)
+		{
+			Support.displayException(ClientDemo.myWindow, e, true);
+			e.printStackTrace();
+		}
+	}
+	
+	public static void printString(final String s)
+	{
+		RichTextPane output = null;
+		
+		if (ClientDemo.myWindow != null)
+		{
+			for (int i = 0; i < ClientDemo.myWindow.getElements().size(); i++)
+			{
+				if (ClientDemo.myWindow.getElements().get(i) instanceof RichTextPane)
+				{
+					output = (RichTextPane)ClientDemo.myWindow.getElements().get(i);
+				}
+			}
+		}
+		
+		if (output != null)
+		{
+			output.append(Color.BLACK, Color.WHITE, "[" + Support.getDateTimeStamp() + "]: " + s);
+		}
+	}
+	
+	public static synchronized void reset()
+	{
+		if (ClientDemo.myWindow != null)
+		{
+			ClientDemo.myWindow.dispose();
+			ClientDemo.myWindow = null;
+		}
+		
+		if (ClientDemo.myThread != null)
+		{
+			ClientDemo.myThread.close();
+			ClientDemo.myThread = null;
+		}
+		
+		String clientTitle = "Client Demo - Remote Host: " + ClientDemo.hostName + " - Remote Port: " + ClientDemo.portNumber;
+		
+		ClientDemo.myWindow = new ApplicationWindow(null, clientTitle, new Dimension(600, 400), ClientDemo.debugMode, false,
+			ClientDemo.myActionPerformed, ClientDemo.myDrawGUI);
+		ClientDemo.myThread = new CNT4504Project1ClientThread(ClientDemo.hostName, ClientDemo.portNumber, ClientDemo.myWindow);
 		ClientDemo.myThread.start();
 		
 		while (ClientDemo.myThread.isConnected())
@@ -178,5 +250,27 @@ public class ClientDemo
 		
 		ClientDemo.myThread = null;
 		ClientDemo.myWindow = null;
+	}
+	
+	public static synchronized void setRemoteHost()
+	{
+		String s = null;
+		
+		s = Support.getInputString(ClientDemo.myWindow, "Remote host?", "Set Remote Host");
+
+		ClientDemo.hostName = s;
+	}
+	
+	public static synchronized void setRemotePort()
+	{
+		String s = null;
+		
+		do
+		{
+			s = Support.getInputString(ClientDemo.myWindow, "Remote port?", "Set Remote Port");
+		}
+		while (Support.isStringParsedAsInteger(s) != true);
+		
+		ClientDemo.portNumber = Integer.parseInt(s);
 	}
 }

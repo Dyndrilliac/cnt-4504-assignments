@@ -5,6 +5,7 @@
 	
 	This code implements the core networking functions needed by the client and server applications.
 */
+
 package CNT4504.Project1Code;
 
 import api.gui.*;
@@ -13,12 +14,14 @@ import api.util.*;
 import java.net.Socket;
 
 /*
-	This class builds upon my existing classes to fulfill the requirement for Project 1.
+	These classes build upon my existing simple classes to fulfill the requirements for Project 1.
 */
 public class CNT4504Project1Code
 {
 	public static class CNT4504Project1ChildServerThread extends Networking.SimpleChildServerThread
 	{
+		protected RichTextPane output = null;
+		
 		public CNT4504Project1ChildServerThread(final Networking.SimpleServerThread parent, final Socket socket, final ApplicationWindow window)
 		{
 			super(parent, socket, window);
