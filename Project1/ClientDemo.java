@@ -9,6 +9,8 @@
 import api.gui.*;
 import api.util.*;
 
+import CNT4504.Project1Code.CNT4504Project1Code.*;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -28,11 +30,11 @@ import javax.swing.KeyStroke;
 
 public class ClientDemo
 {
-	private final static Font						textFont	= new Font("Lucida Console", Font.PLAIN, 14);
+	private final static Font					textFont	= new Font("Lucida Console", Font.PLAIN, 14);
 	
-	private static boolean							debugMode	= false;
-	private static Networking.SimpleClientThread	myThread	= null;
-	private static ApplicationWindow				myWindow	= null;
+	private static boolean						debugMode	= false;
+	private static CNT4504Project1ClientThread	myThread	= null;
+	private static ApplicationWindow			myWindow	= null;
 	
 	// Client application entry-point.
 	public static void main(final String[] args)
@@ -166,7 +168,7 @@ public class ClientDemo
 		
 		ClientDemo.myWindow = new ApplicationWindow(null, "Client Demo", new Dimension(600, 400), ClientDemo.debugMode, false,
 			myActionPerformed, myDrawGUI);
-		ClientDemo.myThread = new CNT4504Project1Code.CNT4504Project1ClientThread("localhost", 15000, ClientDemo.myWindow);
+		ClientDemo.myThread = new CNT4504Project1ClientThread("localhost", 15000, ClientDemo.myWindow);
 		ClientDemo.myThread.start();
 		
 		while (ClientDemo.myThread.isConnected())
