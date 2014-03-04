@@ -219,7 +219,7 @@ class ClientController {
         args = getArgs.nextLine();
 
 
-        return stcmd + " " + args;
+        return cmdname + " " + args;
     } // end makeCommand
 
 
