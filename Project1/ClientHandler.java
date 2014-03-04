@@ -18,30 +18,38 @@ public class ClientHandler implements Runnable {
 
          // duplicate the client's input and output streams
         try {
-            try (DataInputStream inputFromClient = new DataInputStream(socket.getInputStream())) {
-                DataOutputStream outputFromServer = new DataOutputStream(socket.getOutputStream());
+            try (
+                    DataInputStream inputFromClient = new DataInputStream(socket.getInputStream());
+                    DataOutputStream outputFromServer = new DataOutputStream(socket.getOutputStream())
+                    ) {
+
 
                 // service clients
                 while (true) {
 
-                    String inputChars = readChars(inputFromClient);
+                    try {
+                        String inputChars = readChars(inputFromClient);
 
 
-                    System.out.println("The string sent to me was " + inputChars + " from "
+                        System.out.println("The string sent to me was " + inputChars + " from "
                             + "client " + clientNo);
-                    System.out.println();
+                        System.out.println();
 
 
-                    // send back the command output.
-                    writeString(outputFromServer, getProcessOutput(inputChars));
+                        // send back the command output.
+                        writeString(outputFromServer, getProcessOutput(inputChars));
 
+                    } catch (EOFException e) {
+                        // client closed connection. nothing to do.
+                        break;
+                    }
 
                 }  // end service to clients
             }
         } catch (IOException e) {
-            System.err.println(e);
+            e.printStackTrace();
 
-        } // end try-with-resources
+        }  // end try-with-resources
 
 
     }  // end thread
@@ -58,7 +66,7 @@ public class ClientHandler implements Runnable {
     private String readChars(DataInputStream inputStream) throws IOException {
 
         int length = inputStream.readInt();
-
+        System.out.println("readInt has: " + length);
         byte[] bytes = new byte[length];
 
         inputStream.readFully(bytes);
@@ -82,7 +90,7 @@ public class ClientHandler implements Runnable {
 
         outputStream.writeInt(string.length() * 2);
         outputStream.writeChars(string);
-
+        outputStream.flush();
     } // end writeString
 
 
@@ -95,22 +103,40 @@ public class ClientHandler implements Runnable {
      */
     private String getProcessOutput(String inString) throws IOException {
 
+
+        char[] chars = new char[32768];
+
+        // ProcessBuilder needs an array like "ls", "-al", etc..
         ProcessBuilder processBuilder = new ProcessBuilder(inString.split("\\s+"));
         Process pr = processBuilder.start();
 
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-        StringBuilder commandOutput = new StringBuilder();
 
-        String line;
+        StringBuilder commandOutput = new StringBuilder();
+        Reader reader = new InputStreamReader(pr.getInputStream());
+
+
+        while (true) {
+
+            int length;
+            try {
+
+                length = reader.read(chars);
+
+                if (length == -1)
+                    break;
+
+            } catch (EOFException e) {
+                break;
+            }
+
+
+            commandOutput.append(chars, 0, length);
+
+        }
 
         // turn the command output into a string to be sent back to the client.
-        while ((line = bufferedReader.readLine()) != null) {
-            commandOutput.append(line);
-            commandOutput.append(System.getProperty("line.separator"));
-
-        } // end while for bufferedReader
-
+        reader.close();
         return commandOutput.toString();
-    }
+    }  // end getProcessOutput
 
 }   // end class ClientHandler

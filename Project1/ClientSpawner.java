@@ -43,17 +43,17 @@ public class ClientSpawner implements Runnable {
     // run a new thread as many times as needed.
     public void run() {
 
-        try (Socket socket = new Socket(server, 15000)) {
+        try (Socket socket = new Socket(server, 15000);
+             DataInputStream inputFromServer = new DataInputStream(socket.getInputStream());
+             DataOutputStream outputFromClient = new DataOutputStream(socket.getOutputStream())
+            ) {
+            /*
+            inputFromServer is our data coming in.
+            outputFromClient is our data going out.
 
-
-
-            // Data*Stream objects expect UTF-16BE
-            DataInputStream inputFromServer = new DataInputStream(socket.getInputStream());     // inbound.
-
-            DataOutputStream outputFromClient = new DataOutputStream(socket.getOutputStream()); // outbound.
+            */
 
             long startTime = System.currentTimeMillis();
-
 
 
             /* we're not using bytes as operation codes anymore. instead, i'm sending a string to the
@@ -78,8 +78,6 @@ public class ClientSpawner implements Runnable {
 
 
 
-            socket.close();
-
             System.out.println("Host finished task.");
 
         } catch (UnknownHostException e) {
@@ -87,7 +85,7 @@ public class ClientSpawner implements Runnable {
 
         } catch (IOException e) {
 
-            System.err.println("Bad IO or host cannot be reached. Check the hostname and try again.");
+            e.printStackTrace();
             System.exit(1);
 
         }
@@ -124,7 +122,9 @@ public class ClientSpawner implements Runnable {
             throw new IllegalArgumentException("String is too long!");
 
         out.writeInt(st.length() * 2);
+        System.out.println("client wrote length: " + st.length() * 2);
         out.writeChars(st);
+        out.flush();
     }  // end sendString
 
     void printProgramOutput(String st) {
