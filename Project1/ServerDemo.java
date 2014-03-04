@@ -40,13 +40,7 @@ public class ServerDemo
 		
 		if (ServerDemo.myWindow != null)
 		{
-			for (int i = 0; i < ServerDemo.myWindow.getElements().size(); i++)
-			{
-				if (ServerDemo.myWindow.getElements().get(i) instanceof RichTextPane)
-				{
-					output = (RichTextPane)ServerDemo.myWindow.getElements().get(i);
-				}
-			}
+			
 		}
 		
 		return output;
@@ -78,7 +72,16 @@ public class ServerDemo
 				}
 				
 				ActionEvent event = (ActionEvent)arguments[0];
-				RichTextPane output = ServerDemo.getOutput();
+				ApplicationWindow window = (ApplicationWindow)arguments[1];
+				RichTextPane output = null;
+				
+				for (int i = 0; i < window.getElements().size(); i++)
+				{
+					if (window.getElements().get(i) instanceof RichTextPane)
+					{
+						output = (RichTextPane)window.getElements().get(i);
+					}
+				}
 				
 				if (output != null)
 				{

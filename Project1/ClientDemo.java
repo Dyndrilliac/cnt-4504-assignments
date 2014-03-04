@@ -57,6 +57,25 @@ public class ClientDemo
 		return output;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public static synchronized JComboBox<String> getInput()
+	{
+		JComboBox<String> input = null;
+		
+		if (ClientDemo.myWindow != null)
+		{
+			for (int i = 0; i < ClientDemo.myWindow.getElements().size(); i++)
+			{
+				if (ClientDemo.myWindow.getElements().get(i) instanceof JComboBox<?>)
+				{
+					input = (JComboBox<String>)ClientDemo.myWindow.getElements().get(i);
+				}
+			}
+		}
+		
+		return input;
+	}
+	
 	// Client application entry-point.
 	public static void main(final String[] args)
 	{
@@ -66,6 +85,7 @@ public class ClientDemo
 		// Define a self-contained ActionListener event handler.
 		ClientDemo.myActionPerformed = new EventHandler()
 		{
+			@SuppressWarnings("unchecked")
 			@Override
 			public final void run(final Object... arguments) throws IllegalArgumentException
 			{
@@ -83,7 +103,24 @@ public class ClientDemo
 				}
 				
 				ActionEvent event = (ActionEvent)arguments[0];
-				RichTextPane output = ClientDemo.getOutput();
+				ApplicationWindow window = (ApplicationWindow)arguments[1];
+				RichTextPane output = null;
+				JComboBox<String> input = null;
+				
+				for (int i = 0; i < window.getElements().size(); i++)
+				{
+					if (window.getElements().get(i) instanceof RichTextPane)
+					{
+						output = (RichTextPane)window.getElements().get(i);
+					}
+				}
+				for (int i = 0; i < window.getElements().size(); i++)
+				{
+					if (window.getElements().get(i) instanceof JComboBox<?>)
+					{
+						input = (JComboBox<String>)window.getElements().get(i);
+					}
+				}
 				
 				if (output != null)
 				{
@@ -111,7 +148,49 @@ public class ClientDemo
 							
 						case "Enter":
 							
-							// TODO
+							String s = (String)input.getSelectedItem();
+							JOptionPane.showMessageDialog(ClientDemo.myWindow, s);
+							
+							switch (s)
+							{
+								case "Host Date/Time":
+									
+									// TODO
+									break;
+									
+								case "Host Uptime":
+									
+									// TODO
+									break;
+									
+								case "Host Memory Use":
+									
+									// TODO
+									break;
+								case "Host Netstat":
+									
+									// TODO
+									break;
+								case "Host Current Users":
+									
+									// TODO
+									break;
+									
+								case "Host Running Processes":
+									
+									// TODO
+									break;
+									
+								case "Quit":
+									
+									System.exit(0);
+									break;
+									
+								default:
+									
+									break;
+								
+							}
 							break;
 							
 						default:
@@ -194,6 +273,7 @@ public class ClientDemo
 				inputBox.addItem("Host Current Users");
 				inputBox.addItem("Host Running Processes");
 				inputBox.addItem("Quit");
+				inputBox.setSelectedIndex(0);
 			}
 		};
 		
